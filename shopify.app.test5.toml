@@ -1,0 +1,24 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "fb90ed26cc96c4f2a31d13098c1746ae"
+name = "test5"
+handle = "test5-108"
+application_url = "https://0.0.0.0:7800"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true
+
+[webhooks]
+api_version = "2025-07"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "customer_read_customers,customer_read_orders,customer_read_store_credit_account_transactions,customer_read_store_credit_accounts,unauthenticated_read_product_listings"
+
+[auth]
+redirect_urls = ["https://0.0.0.0:7800/auth/callback", "https://0.0.0.0:7800/auth/shopify/callback", "https://0.0.0.0:7800/api/auth/callback"]
+
+[pos]
+embedded = false
