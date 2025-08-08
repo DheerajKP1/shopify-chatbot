@@ -22,4 +22,4 @@ RUN npx prisma generate
 # RUN npm run build
 
 # CMD ["npm", "run", "docker-start"]
-CMD ["shopify", "app", "dev", "--use-localhost", "--localhost-port", "7800","--reset"]
+CMD ["shopify", "app", "dev", "--use-localhost", "--localhost-port", "7800"]

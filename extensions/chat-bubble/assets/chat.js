@@ -481,7 +481,7 @@
             prompt_type: promptType
           });
 
-          const streamUrl = 'https://localhost:7800/chat';
+          const streamUrl = 'https://0.0.0.0:7800/chat';
           const shopId = window.shopId;
 
           const response = await fetch(streamUrl, {
@@ -630,7 +630,7 @@
           messagesContainer.appendChild(loadingMessage);
 
           // Fetch history from the server
-          const historyUrl = `https://localhost:7800/chat?history=true&conversation_id=${encodeURIComponent(conversationId)}`;
+          const historyUrl = `https://0.0.0.0:7800/chat?history=true&conversation_id=${encodeURIComponent(conversationId)}`;
           console.log('Fetching history from:', historyUrl);
 
           const response = await fetch(historyUrl, {
@@ -779,7 +779,7 @@
           attemptCount++;
 
           try {
-            const tokenUrl = 'https://localhost:7800/auth/token-status?conversation_id=' +
+            const tokenUrl = 'https://0.0.0.0:7800/auth/token-status?conversation_id=' +
               encodeURIComponent(conversationId);
             const response = await fetch(tokenUrl);
 
