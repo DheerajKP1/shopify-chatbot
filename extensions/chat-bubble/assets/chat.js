@@ -17,6 +17,7 @@
     UI: {
       elements: {},
       isMobile: false,
+      BASE_URL: 'https://shopify-chatbot-6ip2.onrender.com', // Will be set later based on environment
 
       /**
        * Initialize UI elements and event listeners
@@ -38,6 +39,7 @@
 
         // Detect mobile device
         this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        // ShopAIChat.UI.BASE_URL = 'https://localhost:7860';
 
         // Set up event listeners
         this.setupEventListeners();
@@ -307,15 +309,15 @@
         const headerElement = document.createElement('div');
         headerElement.classList.add('shop-ai-tool-header');
 
-        const toolText = document.createElement('span');
-        toolText.classList.add('shop-ai-tool-text');
-        toolText.textContent = `Calling tool: ${toolName}`;
-
+        // const toolText = document.createElement('span');
+        // toolText.classList.add('shop-ai-tool-text');
+        // toolText.textContent = `Calling tool: ${toolName}`;
+        // toolText.textContent = 'searching ...';
         const toggleElement = document.createElement('span');
         toggleElement.classList.add('shop-ai-tool-toggle');
-        toggleElement.textContent = '[+]';
+        // toggleElement.textContent = '[+]';
 
-        headerElement.appendChild(toolText);
+        // headerElement.appendChild(toolText);
         headerElement.appendChild(toggleElement);
 
         // Create the arguments section (initially hidden)
@@ -481,9 +483,9 @@
             prompt_type: promptType
           });
 
-          const streamUrl = 'https://0.0.0.0:7800/chat';
+          const streamUrl = `${ShopAIChat.UI.BASE_URL}/chat`;
           const shopId = window.shopId;
-
+          console.log('------Streaming response to:', streamUrl, 'with body:', requestBody);
           const response = await fetch(streamUrl, {
             method: 'POST',
             headers: {
@@ -561,6 +563,8 @@
           case 'message_complete':
             ShopAIChat.UI.removeTypingIndicator();
             ShopAIChat.Formatting.formatMessageContent(currentMessageElement);
+            // Add follow-up questions after message is complete
+            this.addFollowUpQuestions(currentMessageElement, messagesContainer, userMessage);
             ShopAIChat.UI.scrollToBottom();
             break;
 
@@ -597,6 +601,8 @@
 
           case 'new_message':
             ShopAIChat.Formatting.formatMessageContent(currentMessageElement);
+            // Add follow-up questions for the completed message
+            this.addFollowUpQuestions(currentMessageElement, messagesContainer, userMessage);
             ShopAIChat.UI.showTypingIndicator();
 
             // Create new message element for the next response
@@ -613,7 +619,171 @@
           case 'content_block_complete':
             ShopAIChat.UI.showTypingIndicator();
             break;
+
+          // case 'follow_up_questions':
+          //   // Handle server-provided follow-up questions
+          //   if (data.questions && Array.isArray(data.questions)) {
+          //     this.addFollowUpQuestionsFromServer(currentMessageElement, messagesContainer, data.questions);
+          //   }
+          //   break;
         }
+      },
+
+      /**
+       * Add follow-up questions to a message
+       * @param {HTMLElement} messageElement - The message element to add questions to
+       * @param {HTMLElement} messagesContainer - The messages container
+       * @param {string} userMessage - The original user message for context
+       */
+      // addFollowUpQuestions: function(messageElement, messagesContainer, userMessage) {
+      //   // Remove any existing follow-up questions
+      //   const existingQuestions = messageElement.parentElement.querySelector('.follow-up-questions');
+      //   if (existingQuestions) {
+      //     existingQuestions.remove();
+      //   }
+
+      //   // Generate contextual follow-up questions
+      //   const followUpQuestions = this.generateFollowUpQuestions(messageElement.dataset.rawText || messageElement.textContent, userMessage);
+        
+      //   if (followUpQuestions.length > 0) {
+      //     this.createFollowUpQuestionsElement(messageElement, messagesContainer, followUpQuestions);
+      //   }
+      // },
+
+      // /**
+      //  * Add follow-up questions provided by the server
+      //  * @param {HTMLElement} messageElement - The message element
+      //  * @param {HTMLElement} messagesContainer - The messages container
+      //  * @param {Array} questions - Array of follow-up questions from server
+      //  */
+      // addFollowUpQuestionsFromServer: function(messageElement, messagesContainer, questions) {
+      //   // Remove any existing follow-up questions
+      //   const existingQuestions = messageElement.parentElement.querySelector('.follow-up-questions');
+      //   if (existingQuestions) {
+      //     existingQuestions.remove();
+      //   }
+
+      //   this.createFollowUpQuestionsElement(messageElement, messagesContainer, questions);
+      // },
+
+      // /**
+      //  * Create and display follow-up questions element
+      //  * @param {HTMLElement} messageElement - The message element
+      //  * @param {HTMLElement} messagesContainer - The messages container
+      //  * @param {Array} questions - Array of follow-up questions
+      //  */
+      // createFollowUpQuestionsElement: function(messageElement, messagesContainer, questions) {
+      //   const questionsContainer = document.createElement('div');
+      //   questionsContainer.classList.add('follow-up-questions');
+      //   questionsContainer.innerHTML = `
+      //     <div class="follow-up-questions-label">You might also ask:</div>
+      //     <div class="follow-up-questions-list">
+      //       ${questions.map(question => `
+      //         <button class="follow-up-question-btn" data-question="${this.escapeHtml(question)}">
+      //           ${this.escapeHtml(question)}
+      //         </button>
+      //       `).join('')}
+      //     </div>
+      //   `;
+
+      //   // Add click event listeners
+      //   questionsContainer.addEventListener('click', (e) => {
+      //     if (e.target.classList.contains('follow-up-question-btn')) {
+      //       const question = e.target.getAttribute('data-question');
+      //       this.handleFollowUpQuestionClick(question, messagesContainer);
+      //     }
+      //   });
+
+      //   // Insert after the message element
+      //   messageElement.parentElement.insertBefore(questionsContainer, messageElement.nextSibling);
+      // },
+
+      // /**
+      //  * Generate contextual follow-up questions based on the response
+      //  * @param {string} responseText - The assistant's response text
+      //  * @param {string} userMessage - The original user message
+      //  * @returns {Array} Array of follow-up question strings
+      //  */
+      // generateFollowUpQuestions: function(responseText, userMessage) {
+      //   const questions = [];
+      //   const lowerResponse = responseText.toLowerCase();
+      //   const lowerUserMessage = userMessage.toLowerCase();
+
+      //   // Product-related questions
+      //   if (lowerResponse.includes('product') || lowerResponse.includes('item') || lowerResponse.includes('price')) {
+      //     questions.push("Can you show me similar products?");
+      //     questions.push("What are the customer reviews like?");
+      //     questions.push("Is this item currently in stock?");
+      //     questions.push("Are there any current discounts?");
+      //   }
+
+      //   // Size/fit related questions
+      //   if (lowerResponse.includes('size') || lowerResponse.includes('fit') || lowerResponse.includes('dimension')) {
+      //     questions.push("What's the size guide for this?");
+      //     questions.push("How does this fit compared to other brands?");
+      //   }
+
+      //   // Shipping/delivery questions
+      //   if (lowerResponse.includes('shipping') || lowerResponse.includes('delivery')) {
+      //     questions.push("What are the shipping options?");
+      //     questions.push("How long does delivery usually take?");
+      //     questions.push("Is there free shipping available?");
+      //   }
+
+      //   // General shopping questions
+      //   if (questions.length < 3) {
+      //     const generalQuestions = [
+      //       "What's your return policy?",
+      //       "Do you have a warranty on this?",
+      //       "Can I track my order?",
+      //       "Are there bundle deals available?",
+      //       "What payment methods do you accept?",
+      //       "Do you offer customer support?",
+      //       "Can I save this to my wishlist?"
+      //     ];
+          
+      //     // Add random general questions to reach 4-5 total
+      //     const remainingSlots = 5 - questions.length;
+      //     const shuffled = generalQuestions.sort(() => 0.5 - Math.random());
+      //     questions.push(...shuffled.slice(0, remainingSlots));
+      //   }
+
+      //   // Limit to 4-5 questions
+      //   return questions.slice(0, Math.min(5, questions.length));
+      // },
+
+      // /**
+      //  * Handle when a follow-up question is clicked
+      //  * @param {string} question - The clicked question text
+      //  * @param {HTMLElement} messagesContainer - The messages container
+      //  */
+      // handleFollowUpQuestionClick: function(question, messagesContainer) {
+      //   // Add user message
+      //   ShopAIChat.Message.add(question, 'user', messagesContainer);
+        
+      //   // Remove all follow-up questions from the chat
+      //   const allFollowUpQuestions = messagesContainer.querySelectorAll('.follow-up-questions');
+      //   allFollowUpQuestions.forEach(element => element.remove());
+        
+      //   // Show typing indicator
+      //   ShopAIChat.UI.showTypingIndicator();
+        
+      //   // Get conversation ID
+      //   const conversationId = sessionStorage.getItem('shopAiConversationId') || null;
+        
+      //   // Send the question to the API
+      //   this.streamResponse(question, conversationId, messagesContainer);
+      // },
+
+      /**
+       * Escape HTML to prevent XSS
+       * @param {string} text - Text to escape
+       * @returns {string} Escaped text
+       */
+      escapeHtml: function(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
       },
 
       /**
@@ -630,7 +800,7 @@
           messagesContainer.appendChild(loadingMessage);
 
           // Fetch history from the server
-          const historyUrl = `https://0.0.0.0:7800/chat?history=true&conversation_id=${encodeURIComponent(conversationId)}`;
+          const historyUrl = `${ShopAIChat.UI.BASE_URL}/chat?history=true&conversation_id=${encodeURIComponent(conversationId)}`;
           console.log('Fetching history from:', historyUrl);
 
           const response = await fetch(historyUrl, {
@@ -652,10 +822,8 @@
           // Remove loading message
           messagesContainer.removeChild(loadingMessage);
 
-          // No messages, show welcome message
           if (!data.messages || data.messages.length === 0) {
             const welcomeMessage = window.shopChatConfig?.welcomeMessage || "👋 Hi there! How can I help you today?";
-            ShopAIChat.Message.add(welcomeMessage, 'assistant', messagesContainer);
             return;
           }
 
@@ -685,10 +853,8 @@
             messagesContainer.removeChild(loadingMessage);
           }
 
-          // Show error and welcome message
-          const welcomeMessage = window.shopChatConfig?.welcomeMessage || "👋 Hi there! How can I help you today?";
-          ShopAIChat.Message.add(welcomeMessage, 'assistant', messagesContainer);
-
+          // Show error and welcome message with follow-up questions
+          const welcomeMessage = window.shopChatConfig?.welcomeMessage || "👋 Hi there! How can I help you today?"
           // Clear the conversation ID since we couldn't fetch this conversation
           sessionStorage.removeItem('shopAiConversationId');
         }
@@ -779,7 +945,7 @@
           attemptCount++;
 
           try {
-            const tokenUrl = 'https://0.0.0.0:7800/auth/token-status?conversation_id=' +
+            const tokenUrl = `${ShopAIChat.UI.BASE_URL}/auth/token-status?conversation_id=` +
               encodeURIComponent(conversationId);
             const response = await fetch(tokenUrl);
 
