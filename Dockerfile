@@ -41,7 +41,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 RUN npm remove @shopify/cli
 
 COPY . .
-
+RUN npx prisma generate
 RUN npm run build
 
 CMD ["npm", "run", "docker-start"]
