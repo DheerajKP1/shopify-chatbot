@@ -24,7 +24,7 @@
 # # CMD ["npm", "run", "docker-start"]
 # CMD ["shopify", "app", "dev", "--use-localhost", "--localhost-port", "7800"]
 
-FROM node:22-alpine
+FROM node:18-alpine
 RUN apk add --no-cache openssl
 
 EXPOSE 3000
